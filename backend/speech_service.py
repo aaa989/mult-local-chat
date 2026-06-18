@@ -11,6 +11,8 @@ load_dotenv()
 logger = logging.getLogger("agent-hub")
 
 DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+DASHSCOPE_API_URL = os.getenv("DASHSCOPE_API_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions")
+ASR_MODEL_NAME = os.getenv("ASR_MODEL_NAME", "qwen3-asr-flash")
 
 USE_LOCAL_MODEL = os.getenv("USE_LOCAL_MODEL", "true").lower() == "true"
 ASR_MODEL = os.getenv("ASR_MODEL", "base")
@@ -23,7 +25,7 @@ os.makedirs(MODEL_CACHE_DIR, exist_ok=True)
 
 class SpeechService:
     def __init__(self):
-        self.api_url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+        self.api_url = DASHSCOPE_API_URL
         self.whisper_model = None
 
     def _ensure_model_files(self):
@@ -180,7 +182,7 @@ class SpeechService:
         }
 
         payload = {
-            "model": "qwen3-asr-flash",
+            "model": ASR_MODEL_NAME,
             "messages": [
                 {
                     "role": "user",

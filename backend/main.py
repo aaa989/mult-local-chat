@@ -26,6 +26,10 @@ app = FastAPI(title="Agent Hub Backend")
 USE_LOCAL_MODEL = os.getenv("USE_LOCAL_MODEL", "true").lower() == "true"
 DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "deepseek-r1:1.5b")
+DASHSCOPE_API_URL = os.getenv("DASHSCOPE_API_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions")
+LLM_MODEL_TEXT = os.getenv("LLM_MODEL_TEXT", "qwen-plus")
+LLM_MODEL_VISION = os.getenv("LLM_MODEL_VISION", "qwen-vl-plus")
+ASR_MODEL_NAME = os.getenv("ASR_MODEL_NAME", "qwen3-asr-flash")
 
 from ollama_client import ollama_client
 from ocr_service import ocr_service
@@ -47,10 +51,12 @@ class ChatRequest(BaseModel):
     system_prompt: str = ""
 
 async def call_llm_gateway(prompt: str, system_prompt: str = "", image_base64: str = None) -> str:
-    api_url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
-    api_key = DASHSCOPE_API_KEY or "sk-99af2b42d32a48a6a3ccaa1718f8279b"
+    api_url = DASHSCOPE_API_URL
+    if not DASHSCOPE_API_KEY:
+        raise ValueError("DASHSCOPE_API_KEY 环境变量未配置")
+    api_key = DASHSCOPE_API_KEY
 
-    model_name = "qwen-vl-plus" if image_base64 else "qwen-plus"
+    model_name = LLM_MODEL_VISION if image_base64 else LLM_MODEL_TEXT
 
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -95,7 +101,9 @@ async def call_llm_gateway(prompt: str, system_prompt: str = "", image_base64: s
             raise HTTPException(status_code=500, detail=f"模型请求失败: {str(e)}")
 
 async def transcribe_audio(audio_bytes: bytes, filename: str, content_type: str) -> str:
-    api_url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+    api_url = DASHSCOPE_API_URL
+    if not DASHSCOPE_API_KEY:
+        raise ValueError("DASHSCOPE_API_KEY 环境变量未配置")
     api_key = DASHSCOPE_API_KEY
 
     headers = {
@@ -107,7 +115,7 @@ async def transcribe_audio(audio_bytes: bytes, filename: str, content_type: str)
     audio_data_uri = f"data:{content_type};base64,{audio_base64}"
 
     payload = {
-        "model": "qwen3-asr-flash",
+        "model": ASR_MODEL_NAME,
         "messages": [
             {
                 "role": "user",

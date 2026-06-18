@@ -7,6 +7,8 @@ load_dotenv()
 logger = logging.getLogger("agent-hub")
 
 DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+DASHSCOPE_API_URL = os.getenv("DASHSCOPE_API_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions")
+LLM_MODEL_VISION = os.getenv("LLM_MODEL_VISION", "qwen-vl-plus")
 
 USE_LOCAL_MODEL = os.getenv("USE_LOCAL_MODEL", "true").lower() == "true"
 VISION_MODEL = os.getenv("VISION_MODEL", "minicpm-v")
@@ -14,7 +16,7 @@ VISION_MODEL = os.getenv("VISION_MODEL", "minicpm-v")
 
 class OCRService:
     def __init__(self):
-        self.api_url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+        self.api_url = DASHSCOPE_API_URL
         from ollama_client import ollama_client
         self.ollama_client = ollama_client
 
@@ -57,7 +59,7 @@ class OCRService:
                 content.insert(0, {"type": "text", "text": prompt})
 
             payload = {
-                "model": "qwen-vl-plus",
+                "model": LLM_MODEL_VISION,
                 "messages": [
                     {"role": "user", "content": content}
                 ],
