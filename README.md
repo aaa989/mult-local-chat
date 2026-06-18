@@ -178,7 +178,6 @@ mult_llm/
 ├── docs/                             # 文档
 │   ├── DEPLOYMENT.md                 # 模型部署流程
 │   ├── DEPLOYMENT_STRATEGY.md        # 部署策略说明
-│   └── 超算服务器部署环境留存、断电关页、重启复现答疑文档.md
 ├── .gitignore                        # Git 忽略规则
 └── README.md                         # 项目说明文档
 ```
